@@ -1,5 +1,10 @@
 from collections import namedtuple
+
+from flask import Flask, request, session, g, redirect, url_for, \
+     abort, render_template, flash
  
+app = Flask(__name__)
+
 OpInfo = namedtuple('OpInfo', 'prec assoc')
 L, R = 'Left Right'.split()
  
@@ -75,8 +80,12 @@ def is_number(s):
 
     return True
 
-def solver(expression):
-	stack = []
+@app.route('/solve', methods=['GET', 'POST'])
+def solver():
+        a = [x.encode('utf-8') for x in request.args.get('exp')]
+        a = " ".join(a)
+        expression = shunting(get_input(a))
+        stack = []
 	for t1 in expression:
 		if(is_number(t1)):
 			stack.append(float(t1))
@@ -97,12 +106,14 @@ def solver(expression):
 				stack.append(t2-t3+0.0)
 			elif t1 == '^':
 				stack.append(t2**t3+0.0)
-	return stack[0]
 
+        print stack[0]
+	return str(stack[0])
 
+@app.route('/database', methods=['GET', 'POST'])
+def database():
+    #do nothing
+    i = 3
 
-infix = '-3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3'
-out = shunting(get_input(infix))
-ans = solver(out)
-print ans
- 
+if __name__ == '__main__':
+    app.run()
